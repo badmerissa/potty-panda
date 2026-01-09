@@ -303,24 +303,42 @@ export default function PottyPanda()
   // --- 6. SUB-COMPONENTS ---
 
   const Header = ({ title }) => (
-    <div className="flex justify-between items-center mb-6">
-      <div className="flex flex-col">
-        <h1 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-          <Baby className="text-blue-500" /> {title}
-        </h1>
-        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-8">
+      <div className="flex justify-between items-center mb-6">
+
+        {/* LEFT SIDE: Logo + Text Group */}
+        <div className="flex items-center gap-3"> {/* gap-3 puts space between logo and text */}
+
+          {/* 1. The Logo */}
+          <img
+              src="/icon.png"
+              alt="Logo"
+              className="w-16 h-16 object-contain" /* Adjusted to w-16 so it fits better in a header */
+          />
+
+          {/* 2. The Text Group (Stacked vertically next to logo) */}
+          <div className="flex flex-col">
+            {/* App Title */}
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-none">
+              {title}
+            </h1>
+            {/* Subtitle */}
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
           {activeProfile.name}'s Log
         </span>
+          </div>
+
+        </div>
+
+        {/* RIGHT SIDE: Buttons */}
+        <div className="flex gap-2">
+          <button onClick={() => setView('history')} className="p-2 bg-white rounded-full shadow-sm text-slate-600 active:bg-slate-100 transition-colors">
+            <History size={24} />
+          </button>
+          <button onClick={() => setView('settings')} className="p-2 bg-white rounded-full shadow-sm text-slate-600 active:bg-slate-100 transition-colors">
+            <Settings size={24} />
+          </button>
+        </div>
       </div>
-      <div className="flex gap-2">
-        <button onClick={() => setView('history')} className="p-2 bg-white rounded-full shadow-sm text-slate-600 active:bg-slate-100 transition-colors">
-          <History size={24} />
-        </button>
-        <button onClick={() => setView('settings')} className="p-2 bg-white rounded-full shadow-sm text-slate-600 active:bg-slate-100 transition-colors">
-          <Settings size={24} />
-        </button>
-      </div>
-    </div>
   );
 
   const Toast = () => (
