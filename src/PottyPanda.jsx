@@ -817,6 +817,12 @@ export default function PottyPanda()
             )}
           </div>
         </div>
+		{/* Footer */}
+      <footer className="py-6 text-center text-xs text-slate-600">
+        <p>
+          Part of the <a href="https://the-helpful-dev.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-blue-400 transition-colors">The Helpful Dev</a> Network
+        </p>
+      </footer>
 
       </div>
     </div>
