@@ -17,7 +17,9 @@ import {
   Users,
   UserPlus,
   Share,
-  MessageSquare
+  MessageSquare,
+  Heart,
+  ExternalLink
 } from 'lucide-react';
 
 /* --- COMPONENT: Potty Panda ---
@@ -567,13 +569,19 @@ export default function PottyPanda()
              <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
                <Coffee size={20} className="text-orange-400"/> Support Development
              </h3>
-             <p className="text-slate-500 text-sm mb-4">If you like this app, consider buying me a coffee!</p>
-             <button 
-               onClick={() => alert("This link would go to Ko-Fi!")}
-               className="block text-center w-full py-3 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-colors"
-             >
-               Buy me a Coffee (Ko-Fi)
-             </button>
+            <p className="text-sm text-slate-500 mb-4 leading-relaxed">
+              Hi! I built this app for tired parents who are just trying to survive. If you find it useful, consider buying me a coffee to help cover the server costs!
+            </p>
+            <a
+                href="https://ko-fi.com/robogirl96"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-[#FF5E5B] hover:bg-[#ff4642] text-white font-bold rounded-lg transition-transform active:scale-95 shadow-lg shadow-red-900/20"
+            >
+              <Heart className="w-4 h-4 fill-white" />
+              Buy me a Coffee
+              <ExternalLink className="w-3 h-3 opacity-70" />
+            </a>
           </div>
           
           <div className="text-center mt-8 text-slate-400 text-xs">
