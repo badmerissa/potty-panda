@@ -64,37 +64,11 @@ const BLOG_ARTICLES = [
         url: 'https://www.whattoexpect.com/toddler-development/potty-training.aspx',
       },
       {
-        title: 'Potty Training Timeline & What to Expect',
-        source: 'WebMD',
-        badge: 'WebMD',
-        description: 'A medically reviewed timeline covering average ages, developmental milestones, and realistic expectations.',
-        url: 'https://www.webmd.com/parenting/potty-training-timeline',
-      },
-      {
         title: 'The Ultimate Potty Training Guide',
         source: 'BabyCenter',
         badge: 'BabyCenter',
         description: 'Covers every method — child-led, parent-led, and the popular 3-day method — with real parent tips.',
         url: 'https://www.babycenter.com/toddler/potty-training',
-      },
-    ],
-  },
-  {
-    category: 'Setbacks & Regression',
-    items: [
-      {
-        title: 'Potty Training Regression: Causes & Solutions',
-        source: 'Parents',
-        badge: 'Parents',
-        description: 'Why regression happens (new baby, starting school, stress) and proven strategies to get back on track.',
-        url: 'https://www.parents.com/toddlers-preschoolers/potty-training/basics/potty-training-regression/',
-      },
-      {
-        title: 'Dealing with Potty Training Fears',
-        source: 'Zero to Three',
-        badge: 'ZeroToThree',
-        description: 'Child development experts explain why some toddlers are afraid of the toilet and how to address it gently.',
-        url: 'https://www.zerotothree.org/resource/toilet-training-tips-from-birth-to-five/',
       },
     ],
   },
@@ -107,14 +81,7 @@ const BLOG_ARTICLES = [
         badge: 'AAP',
         description: 'AAP guidance on nocturnal enuresis — when it\'s normal, when to see a doctor, and overnight strategies.',
         url: 'https://www.healthychildren.org/English/ages-stages/toddler/toilet-training/Pages/Bedwetting.aspx',
-      },
-      {
-        title: 'Nighttime Potty Training: When & How',
-        source: 'BabyCenter',
-        badge: 'BabyCenter',
-        description: 'Daytime dry is just the first step. This guide covers staying dry overnight with realistic timelines.',
-        url: 'https://www.babycenter.com/toddler/potty-training/nighttime-potty-training_9185',
-      },
+      }
     ],
   },
 ];
