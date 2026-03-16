@@ -3,7 +3,7 @@ import {
   Droplets, Cookie, History, Settings, Trash2, Edit2, X, Check,
   AlertTriangle, ArrowLeft, Coffee, ChevronRight, Users, UserPlus,
   Share, MessageSquare, Heart, ExternalLink, Home, Download, Copy,
-  Shield, Plus, ChevronDown, BarChart2, Calendar
+  Shield, Plus, ChevronDown, BarChart2, Calendar, BookOpen
 } from 'lucide-react';
 
 /* --- Potty Panda v2 ---
@@ -31,6 +31,93 @@ const C = {
 
 // Tiny helpers for alpha hex backgrounds
 const alpha = (hex, pct) => hex + Math.round(pct * 2.55).toString(16).padStart(2, '0');
+
+// ── Curated potty-training articles (SEO resource hub) ──────────────────────
+const BLOG_ARTICLES = [
+  {
+    category: 'Readiness & Getting Started',
+    items: [
+      {
+        title: 'Toilet Training: HealthyChildren.org Guide',
+        source: 'American Academy of Pediatrics',
+        badge: 'AAP',
+        description: 'Official AAP guidance on signs of readiness, timing, and a step-by-step approach recommended by pediatricians.',
+        url: 'https://www.healthychildren.org/English/ages-stages/toddler/toilet-training/Pages/default.aspx',
+      },
+      {
+        title: 'Toilet Training: How to Get the Job Done',
+        source: 'Mayo Clinic',
+        badge: 'Mayo Clinic',
+        description: 'Expert-reviewed signs of readiness, equipment tips, and what to do when things don\'t go as planned.',
+        url: 'https://www.mayoclinic.org/healthy-lifestyle/infant-and-toddler-health/in-depth/potty-training/art-20045230',
+      },
+    ],
+  },
+  {
+    category: 'Step-by-Step Guides',
+    items: [
+      {
+        title: 'Potty Training: A Complete Step-by-Step Guide',
+        source: 'What to Expect',
+        badge: 'WTE',
+        description: 'From choosing the right potty seat to celebrating wins — a thorough walkthrough for first-time parents.',
+        url: 'https://www.whattoexpect.com/toddler-development/potty-training.aspx',
+      },
+      {
+        title: 'Potty Training Timeline & What to Expect',
+        source: 'WebMD',
+        badge: 'WebMD',
+        description: 'A medically reviewed timeline covering average ages, developmental milestones, and realistic expectations.',
+        url: 'https://www.webmd.com/parenting/potty-training-timeline',
+      },
+      {
+        title: 'The Ultimate Potty Training Guide',
+        source: 'BabyCenter',
+        badge: 'BabyCenter',
+        description: 'Covers every method — child-led, parent-led, and the popular 3-day method — with real parent tips.',
+        url: 'https://www.babycenter.com/toddler/potty-training',
+      },
+    ],
+  },
+  {
+    category: 'Setbacks & Regression',
+    items: [
+      {
+        title: 'Potty Training Regression: Causes & Solutions',
+        source: 'Parents',
+        badge: 'Parents',
+        description: 'Why regression happens (new baby, starting school, stress) and proven strategies to get back on track.',
+        url: 'https://www.parents.com/toddlers-preschoolers/potty-training/basics/potty-training-regression/',
+      },
+      {
+        title: 'Dealing with Potty Training Fears',
+        source: 'Zero to Three',
+        badge: 'ZeroToThree',
+        description: 'Child development experts explain why some toddlers are afraid of the toilet and how to address it gently.',
+        url: 'https://www.zerotothree.org/resource/toilet-training-tips-from-birth-to-five/',
+      },
+    ],
+  },
+  {
+    category: 'Night Training',
+    items: [
+      {
+        title: 'Bedwetting: What Parents Need to Know',
+        source: 'American Academy of Pediatrics',
+        badge: 'AAP',
+        description: 'AAP guidance on nocturnal enuresis — when it\'s normal, when to see a doctor, and overnight strategies.',
+        url: 'https://www.healthychildren.org/English/ages-stages/toddler/toilet-training/Pages/Bedwetting.aspx',
+      },
+      {
+        title: 'Nighttime Potty Training: When & How',
+        source: 'BabyCenter',
+        badge: 'BabyCenter',
+        description: 'Daytime dry is just the first step. This guide covers staying dry overnight with realistic timelines.',
+        url: 'https://www.babycenter.com/toddler/potty-training/nighttime-potty-training_9185',
+      },
+    ],
+  },
+];
 
 export default function PottyPanda() {
 
@@ -319,6 +406,7 @@ export default function PottyPanda() {
     const tabs = [
       { id: 'home',     Icon: Home,     label: 'Home'     },
       { id: 'history',  Icon: History,  label: 'History'  },
+      { id: 'blog',     Icon: BookOpen, label: 'Blog'     },
       { id: 'children', Icon: Users,    label: 'Children' },
       { id: 'settings', Icon: Settings, label: 'Settings' },
     ];
@@ -722,6 +810,101 @@ export default function PottyPanda() {
           </div>
 
         </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  // ── VIEW: BLOG ──────────────────────────────────────────────────────────────
+
+  if (view === 'blog') {
+    // Badge colour per source
+    const badgeStyle = (badge) => {
+      const map = {
+        'AAP':         { bg: '#EBF4FF', color: '#1D6FA4' },
+        'Mayo Clinic': { bg: '#F0FDF4', color: '#166534' },
+        'WebMD':       { bg: '#FEF3C7', color: '#92400E' },
+        'BabyCenter':  { bg: '#FDF2F8', color: '#9D174D' },
+        'WTE':         { bg: '#F5F3FF', color: '#5B21B6' },
+        'Parents':     { bg: '#FFF1F2', color: '#9F1239' },
+        'ZeroToThree': { bg: '#ECFDF5', color: '#065F46' },
+      };
+      return map[badge] || { bg: alpha(C.brand, 10), color: C.brand };
+    };
+
+    return (
+      <div className="min-h-screen font-sans pb-24" style={{ backgroundColor: C.bg }}>
+        <Toast />
+        <AppHeader />
+
+        <div className="max-w-sm mx-auto">
+          {/* Hero banner */}
+          <div className="px-5 pt-5 pb-4">
+            <h1 className="text-xl font-black" style={{ color: C.primary }}>Potty Training Resources</h1>
+            <p className="text-sm mt-1 leading-relaxed" style={{ color: C.muted }}>
+              Curated articles from pediatricians and parenting experts — everything you need to feel confident.
+            </p>
+          </div>
+
+          {/* Article categories */}
+          <div className="px-5 pb-5 space-y-6">
+            {BLOG_ARTICLES.map(({ category, items }) => (
+              <div key={category}>
+                <h2 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: C.muted }}>
+                  {category}
+                </h2>
+                <div className="space-y-3">
+                  {items.map((article) => {
+                    const bs = badgeStyle(article.badge);
+                    return (
+                      <a
+                        key={article.url}
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-4 bg-white rounded-2xl border p-4 transition-all active:bg-slate-50 active:scale-[0.99]"
+                        style={{ borderColor: C.border }}
+                      >
+                        {/* Source badge */}
+                        <div
+                          className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+                          style={{ backgroundColor: bs.bg }}
+                        >
+                          <BookOpen size={18} style={{ color: bs.color }} />
+                        </div>
+
+                        {/* Text */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-sm font-bold leading-snug" style={{ color: C.primary }}>
+                              {article.title}
+                            </span>
+                            <ExternalLink size={14} className="flex-shrink-0 mt-0.5" style={{ color: C.muted }} />
+                          </div>
+                          <span
+                            className="inline-block mt-1 mb-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                            style={{ backgroundColor: bs.bg, color: bs.color }}
+                          >
+                            {article.source}
+                          </span>
+                          <p className="text-xs leading-relaxed" style={{ color: C.muted }}>
+                            {article.description}
+                          </p>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {/* Disclaimer */}
+            <p className="text-[11px] text-center leading-relaxed px-2" style={{ color: C.muted }}>
+              Links open external websites. Potty Panda is not affiliated with any of these sources. Always consult your child's pediatrician for personalised advice.
+            </p>
+          </div>
+        </div>
+
         <BottomNav />
       </div>
     );
