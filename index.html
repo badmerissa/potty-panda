@@ -5,16 +5,71 @@
     <link rel="icon" type="image/png" href="/icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#4F7FFA" />
-    <meta name="description" content="A simple, private potty training tracker for parents. No accounts, no servers — all data stays on your device." />
+
+    <!-- Primary meta -->
+    <meta name="description" content="Track your child's potty training progress privately. No accounts, no cloud — all data stays on your device. Free potty training tracker for parents." />
+
+    <!-- Open Graph (default — overridden per-route by react-helmet-async) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Potty Panda" />
+    <meta property="og:title" content="Potty Panda — Free Potty Training Tracker &amp; Log App" />
+    <meta property="og:description" content="Track your child's potty training privately. No accounts, no cloud — everything stays on your device." />
+    <meta property="og:image" content="https://pottypanda.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://pottypanda.app/" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Potty Panda — Free Potty Training Tracker &amp; Log App" />
+    <meta name="twitter:description" content="Track your child's potty training privately. No accounts, no cloud — everything stays on your device." />
+    <meta name="twitter:image" content="https://pottypanda.app/og-image.png" />
+
+    <!-- Canonical (default — overridden per-route by react-helmet-async) -->
+    <link rel="canonical" href="https://pottypanda.app/" />
+
+    <!-- PWA / Apple -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Potty Panda" />
     <link rel="apple-touch-icon" href="/icon.png" />
     <link rel="manifest" href="/manifest.json" />
+
+    <!-- Google Fonts with font-display: swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" />
-    <title>Potty Panda</title>
+
+    <!-- Structured data: SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Potty Panda",
+      "applicationCategory": "HealthApplication",
+      "applicationSubCategory": "Parenting",
+      "operatingSystem": "Web, iOS, Android",
+      "description": "A free, private potty training tracker for parents. No accounts or servers — all data stays on your device.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Potty training log tracking",
+        "Success and miss tracking",
+        "7-day trend charts",
+        "Multiple child profile support",
+        "Private — data never leaves your device",
+        "Works offline",
+        "Export data as CSV"
+      ],
+      "url": "https://pottypanda.app/",
+      "image": "https://pottypanda.app/og-image.png"
+    }
+    </script>
+
+    <title>Potty Panda — Free Potty Training Tracker &amp; Log App</title>
   </head>
   <body>
     <div id="root"></div>

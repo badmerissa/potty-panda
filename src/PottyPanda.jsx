@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   Droplets, Cookie, History, Settings, Trash2, Edit2, X, Check,
   AlertTriangle, ArrowLeft, Coffee, ChevronRight, Users, UserPlus,
   Share, MessageSquare, Heart, ExternalLink, Home, Download, Copy,
-  Shield, Plus, ChevronDown, BarChart2, Calendar, BookOpen
+  Shield, Plus, ChevronDown, BarChart2, Calendar, BookOpen, FileText, ChevronUp
 } from 'lucide-react';
 
 /* --- Potty Panda v2 ---
@@ -86,11 +88,32 @@ const BLOG_ARTICLES = [
   },
 ];
 
+const PATH_TO_VIEW = {
+  '/': 'home',
+  '/history': 'history',
+  '/blog': 'blog',
+  '/children': 'children',
+  '/settings': 'settings',
+  '/privacy': 'privacy',
+};
+
+const VIEW_TO_PATH = {
+  home: '/',
+  history: '/history',
+  blog: '/blog',
+  children: '/children',
+  settings: '/settings',
+  privacy: '/privacy',
+};
+
 export default function PottyPanda() {
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // ── STATE ───────────────────────────────────────────────────────────────────
 
-  const [view, setView] = useState('home'); // 'home' | 'history' | 'children' | 'settings' | 'edit'
+  // Derive view from URL path; 'edit' is an in-memory sub-state of history
+  const urlView = PATH_TO_VIEW[location.pathname] || 'home';
 
   const [profiles, setProfiles] = useState(() => {
     try {
@@ -123,6 +146,21 @@ export default function PottyPanda() {
 
   // Edit state
   const [editingLog, setEditingLog] = useState(null);
+
+  // Compute effective view: 'edit' when editing a log entry within /history
+  const view = (editingLog && urlView === 'history') ? 'edit' : urlView;
+
+  // Navigation helper — mirrors the old setView API
+  const setView = useCallback((v) => {
+    if (v === 'edit') {
+      // editingLog must be set before calling setView('edit')
+      // stay on /history URL; the edit sub-view is controlled by editingLog state
+      if (location.pathname !== '/history') navigate('/history');
+    } else {
+      if (v !== 'history') setEditingLog(null);
+      navigate(VIEW_TO_PATH[v] || '/');
+    }
+  }, [navigate, location.pathname]);
 
   // Toast
   const [toastVisible, setToastVisible] = useState(false);
@@ -371,31 +409,33 @@ export default function PottyPanda() {
   // Fixed bottom nav bar
   const BottomNav = () => {
     const tabs = [
-      { id: 'home',     Icon: Home,     label: 'Home'     },
-      { id: 'history',  Icon: History,  label: 'History'  },
-      { id: 'blog',     Icon: BookOpen, label: 'Blog'     },
-      { id: 'children', Icon: Users,    label: 'Children' },
-      { id: 'settings', Icon: Settings, label: 'Settings' },
+      { id: 'home',     path: '/',          Icon: Home,     label: 'Home'     },
+      { id: 'history',  path: '/history',   Icon: History,  label: 'History'  },
+      { id: 'blog',     path: '/blog',      Icon: BookOpen, label: 'Blog'     },
+      { id: 'children', path: '/children',  Icon: Users,    label: 'Children' },
+      { id: 'settings', path: '/settings',  Icon: Settings, label: 'Settings' },
     ];
     return (
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t"
         style={{ borderColor: C.border, paddingBottom: 'env(safe-area-inset-bottom)' }}
+        aria-label="Main navigation"
       >
         <div className="max-w-sm mx-auto flex">
-          {tabs.map(({ id, Icon, label }) => {
+          {tabs.map(({ id, path, Icon, label }) => {
             const active = view === id || (id === 'history' && view === 'edit');
             return (
-              <button
+              <Link
                 key={id}
-                onClick={() => setView(id)}
+                to={path}
                 className="flex-1 flex flex-col items-center gap-1 py-3 transition-colors"
-                style={{ color: active ? C.brand : C.muted }}
+                style={{ color: active ? C.brand : C.muted, textDecoration: 'none' }}
                 aria-label={label}
+                aria-current={active ? 'page' : undefined}
               >
                 <Icon size={21} strokeWidth={active ? 2.5 : 1.8} />
                 <span className="text-[10px] font-semibold tracking-wide">{label}</span>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -410,10 +450,10 @@ export default function PottyPanda() {
         <img src="/icon.png" alt="Potty Panda" className="w-9 h-9 object-contain rounded-xl" />
         <span className="text-lg font-black tracking-tight" style={{ color: C.primary }}>Potty Panda</span>
       </div>
-      <button
-        onClick={() => setView('children')}
+      <Link
+        to="/children"
         className="flex items-center gap-2 px-3 py-1.5 rounded-full border bg-white shadow-sm transition-colors active:bg-slate-50"
-        style={{ borderColor: C.border }}
+        style={{ borderColor: C.border, textDecoration: 'none' }}
         aria-label={`Switch child — current: ${activeProfile.name}`}
       >
         <div
@@ -424,7 +464,7 @@ export default function PottyPanda() {
         </div>
         <span className="text-sm font-semibold" style={{ color: C.primary }}>{activeProfile.name}</span>
         <ChevronDown size={13} style={{ color: C.muted }} />
-      </button>
+      </Link>
     </header>
   );
 
@@ -681,6 +721,14 @@ export default function PottyPanda() {
   if (view === 'settings') {
     return (
       <div className="min-h-screen font-sans pb-24" style={{ backgroundColor: C.bg }}>
+        <Helmet>
+          <title>Settings &amp; Privacy | Potty Panda</title>
+          <meta name="description" content="Manage your data and privacy settings. All Potty Panda data stays on your device — no servers, no accounts." />
+          <link rel="canonical" href="https://pottypanda.app/settings" />
+          <meta property="og:title" content="Settings & Privacy | Potty Panda" />
+          <meta property="og:description" content="Manage your data and privacy settings. All Potty Panda data stays on your device." />
+          <meta property="og:url" content="https://pottypanda.app/settings" />
+        </Helmet>
         <Toast />
         <Modal />
         <ExportSheet />
@@ -764,6 +812,17 @@ export default function PottyPanda() {
                 <span className="text-sm font-semibold" style={{ color: C.primary }}>Version</span>
                 <span className="text-sm" style={{ color: C.muted }}>v2.0.0</span>
               </div>
+              <Link
+                to="/privacy"
+                className="flex items-center justify-between px-5 py-4 active:bg-slate-50 transition-colors"
+                style={{ textDecoration: 'none' }}
+              >
+                <div className="flex items-center gap-3">
+                  <FileText size={17} style={{ color: C.brand }} />
+                  <span className="text-sm font-semibold" style={{ color: C.primary }}>Privacy Policy</span>
+                </div>
+                <ChevronRight size={15} style={{ color: C.muted }} />
+              </Link>
               <a
                 href="https://thehelpfuldev.com/"
                 target="_blank"
@@ -801,6 +860,14 @@ export default function PottyPanda() {
 
     return (
       <div className="min-h-screen font-sans pb-24" style={{ backgroundColor: C.bg }}>
+        <Helmet>
+          <title>Potty Training Resources &amp; Expert Tips | Potty Panda</title>
+          <meta name="description" content="Curated expert articles from AAP, Mayo Clinic, and BabyCenter to guide your potty training journey. Free advice from trusted pediatric sources." />
+          <link rel="canonical" href="https://pottypanda.app/blog" />
+          <meta property="og:title" content="Potty Training Resources & Expert Tips | Potty Panda" />
+          <meta property="og:description" content="Curated expert articles from AAP, Mayo Clinic, and BabyCenter to guide your potty training journey." />
+          <meta property="og:url" content="https://pottypanda.app/blog" />
+        </Helmet>
         <Toast />
         <AppHeader />
 
@@ -869,6 +936,17 @@ export default function PottyPanda() {
             <p className="text-[11px] text-center leading-relaxed px-2" style={{ color: C.muted }}>
               Links open external websites. Potty Panda is not affiliated with any of these sources. Always consult your child's pediatrician for personalised advice.
             </p>
+
+            {/* Internal CTA — link back to home tracker */}
+            <Link
+              to="/"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm transition-all active:scale-95 shadow-sm"
+              style={{ backgroundColor: C.brand, color: '#fff', textDecoration: 'none' }}
+            >
+              <BarChart2 size={16} />
+              Track your progress with Potty Panda
+              <ChevronRight size={15} strokeWidth={2.5} />
+            </Link>
           </div>
         </div>
 
@@ -882,6 +960,14 @@ export default function PottyPanda() {
   if (view === 'children') {
     return (
       <div className="min-h-screen font-sans pb-24" style={{ backgroundColor: C.bg }}>
+        <Helmet>
+          <title>Manage Child Profiles | Potty Panda</title>
+          <meta name="description" content="Add and manage multiple child profiles to track each child's potty training individually. Private and secure — all data stays on your device." />
+          <link rel="canonical" href="https://pottypanda.app/children" />
+          <meta property="og:title" content="Manage Child Profiles | Potty Panda" />
+          <meta property="og:description" content="Add and manage multiple child profiles to track each child's potty training individually." />
+          <meta property="og:url" content="https://pottypanda.app/children" />
+        </Helmet>
         <Toast />
         <Modal />
         <AppHeader />
@@ -1001,6 +1087,14 @@ export default function PottyPanda() {
 
     return (
       <div className="min-h-screen font-sans pb-24" style={{ backgroundColor: C.bg }}>
+        <Helmet>
+          <title>Potty Training History &amp; Trends | Potty Panda</title>
+          <meta name="description" content="View 7-day trends and daily logs for your child's potty training journey. Track progress and celebrate successes." />
+          <link rel="canonical" href="https://pottypanda.app/history" />
+          <meta property="og:title" content="Potty Training History & Trends | Potty Panda" />
+          <meta property="og:description" content="View 7-day trends and daily logs for your child's potty training journey." />
+          <meta property="og:url" content="https://pottypanda.app/history" />
+        </Helmet>
         <Toast />
         <Modal />
         <ExportSheet />
@@ -1121,10 +1215,111 @@ export default function PottyPanda() {
     );
   }
 
+  // ── VIEW: PRIVACY POLICY ────────────────────────────────────────────────────
+
+  if (view === 'privacy') {
+    return (
+      <div className="min-h-screen font-sans pb-24" style={{ backgroundColor: C.bg }}>
+        <Helmet>
+          <title>Privacy Policy | Potty Panda</title>
+          <meta name="description" content="Potty Panda's privacy policy. All data is stored locally on your device. No personal information is collected or transmitted." />
+          <link rel="canonical" href="https://pottypanda.app/privacy" />
+          <meta property="og:title" content="Privacy Policy | Potty Panda" />
+          <meta property="og:url" content="https://pottypanda.app/privacy" />
+        </Helmet>
+        <Toast />
+        <AppHeader />
+
+        <div className="max-w-sm mx-auto p-5 space-y-4">
+          <div className="flex items-center gap-4 mb-2">
+            <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-slate-100 active:bg-slate-200 transition-colors" aria-label="Go back">
+              <ArrowLeft size={20} color={C.primary} />
+            </button>
+            <h1 className="text-xl font-black" style={{ color: C.primary }}>Privacy Policy</h1>
+          </div>
+
+          <div className="bg-white rounded-2xl border p-5 space-y-4 text-sm leading-relaxed" style={{ borderColor: C.border, color: C.primary }}>
+            <p style={{ color: C.muted }}>Last updated: March 2026</p>
+
+            <section>
+              <h2 className="font-bold text-base mb-2" style={{ color: C.primary }}>1. Data Storage</h2>
+              <p style={{ color: C.muted }}>
+                Potty Panda stores <strong>all data exclusively on your device</strong> using your browser's
+                localStorage. No potty training logs, child profiles, or any other app data are ever transmitted
+                to our servers or any third party. We have no access to your data.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-bold text-base mb-2" style={{ color: C.primary }}>2. Analytics</h2>
+              <p style={{ color: C.muted }}>
+                Potty Panda uses <strong>Vercel Analytics</strong> to collect anonymous, aggregated page-view
+                statistics (page URL, referrer, country, device type). This data contains no personally
+                identifiable information and is used solely to understand how the app is used. No cross-site
+                tracking cookies are set.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-bold text-base mb-2" style={{ color: C.primary }}>3. No Accounts Required</h2>
+              <p style={{ color: C.muted }}>
+                Potty Panda requires no account, email address, or login. We do not collect any personal
+                information from you.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-bold text-base mb-2" style={{ color: C.primary }}>4. Third-Party Links</h2>
+              <p style={{ color: C.muted }}>
+                The Resources section links to external articles (AAP, Mayo Clinic, BabyCenter, etc.).
+                These third-party websites have their own privacy policies. Potty Panda is not responsible
+                for the content or privacy practices of external sites.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-bold text-base mb-2" style={{ color: C.primary }}>5. Data Deletion</h2>
+              <p style={{ color: C.muted }}>
+                You can delete all your data at any time from the Settings tab, or by clearing your
+                browser's site data for this domain. Since data is stored locally, uninstalling or
+                clearing your browser data will permanently remove all Potty Panda data.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="font-bold text-base mb-2" style={{ color: C.primary }}>6. Changes to This Policy</h2>
+              <p style={{ color: C.muted }}>
+                If this policy changes materially, we will update the date above. Continued use of
+                Potty Panda after changes constitutes acceptance of the updated policy.
+              </p>
+            </section>
+          </div>
+
+          <div className="rounded-2xl border p-4 flex items-start gap-3" style={{ backgroundColor: alpha(C.brand, 8), borderColor: alpha(C.brand, 20) }}>
+            <Shield size={18} style={{ color: C.brand, marginTop: 2, flexShrink: 0 }} />
+            <p className="text-sm" style={{ color: C.primary }}>
+              <strong>Privacy first.</strong> Your child's data never leaves your device. Period.
+            </p>
+          </div>
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  }
+
   // ── VIEW: HOME (default) ─────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen font-sans pb-24" style={{ backgroundColor: C.bg }}>
+      <Helmet>
+        <title>Potty Panda — Free Potty Training Tracker &amp; Log App</title>
+        <meta name="description" content="Track your child's potty training progress privately. No accounts, no cloud — all data stays on your device. Free potty training tracker for parents." />
+        <link rel="canonical" href="https://pottypanda.app/" />
+        <meta property="og:title" content="Potty Panda — Free Potty Training Tracker & Log App" />
+        <meta property="og:description" content="Track your child's potty training progress privately. No accounts, no cloud — everything stays on your device." />
+        <meta property="og:url" content="https://pottypanda.app/" />
+      </Helmet>
       <Toast />
       <Modal />
       <AppHeader />
@@ -1281,8 +1476,115 @@ export default function PottyPanda() {
           </div>
         </div>
 
+        {/* FAQ Section */}
+        <FaqSection />
+
+        {/* Site footer with internal links */}
+        <SiteFooter />
+
       </div>
       <BottomNav />
     </div>
+  );
+}
+
+// ── FAQ DATA ─────────────────────────────────────────────────────────────────
+
+const FAQ_ITEMS = [
+  {
+    question: 'Is Potty Panda free?',
+    answer: 'Yes — Potty Panda is completely free. There are no subscriptions, premium tiers, or hidden charges.',
+  },
+  {
+    question: "Does Potty Panda store my child's data on a server?",
+    answer: 'No. All data is stored exclusively in your browser\'s localStorage on your own device. Nothing is ever sent to a server or third party.',
+  },
+  {
+    question: 'Can I track multiple children?',
+    answer: 'Yes. You can create separate profiles for each child and switch between them instantly. Each profile has its own independent log.',
+  },
+  {
+    question: 'Does Potty Panda work offline?',
+    answer: 'Yes. Because all data is local, the app works fully offline after the first load.',
+  },
+  {
+    question: 'How do I export my potty training data?',
+    answer: 'Open the History tab and tap the download icon. You can export your logs as a CSV file compatible with Excel and Google Sheets.',
+  },
+  {
+    question: 'What is a good potty training schedule?',
+    answer: 'Most pediatricians recommend taking your child to the potty every 1–2 hours during waking hours, after meals, and before naps and bedtime. Consistency is key — use Potty Panda to log each attempt so you can spot your child\'s natural rhythm.',
+  },
+];
+
+function FaqSection() {
+  const [openIndex, setOpenIndex] = React.useState(null);
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: { '@type': 'Answer', text: answer },
+    })),
+  };
+
+  return (
+    <>
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+      </Helmet>
+      <section aria-labelledby="faq-heading">
+        <h2 id="faq-heading" className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: C.muted }}>
+          Frequently Asked Questions
+        </h2>
+        <div className="bg-white rounded-2xl border overflow-hidden shadow-sm divide-y" style={{ borderColor: C.border }}>
+          {FAQ_ITEMS.map(({ question, answer }, i) => (
+            <div key={i}>
+              <button
+                className="w-full flex items-center justify-between px-5 py-4 text-left"
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                aria-expanded={openIndex === i}
+              >
+                <span className="text-sm font-semibold pr-3" style={{ color: C.primary }}>{question}</span>
+                {openIndex === i
+                  ? <ChevronUp size={16} style={{ color: C.muted, flexShrink: 0 }} />
+                  : <ChevronDown size={16} style={{ color: C.muted, flexShrink: 0 }} />
+                }
+              </button>
+              {openIndex === i && (
+                <div className="px-5 pb-4 text-sm leading-relaxed" style={{ color: C.muted }}>
+                  {answer}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="pt-2 pb-2 text-center" aria-label="Site footer">
+      <nav className="flex items-center justify-center gap-4 flex-wrap" aria-label="Footer navigation">
+        <Link to="/blog" className="text-xs font-semibold" style={{ color: C.muted, textDecoration: 'none' }}>
+          Resources
+        </Link>
+        <span style={{ color: C.border }}>·</span>
+        <Link to="/privacy" className="text-xs font-semibold" style={{ color: C.muted, textDecoration: 'none' }}>
+          Privacy Policy
+        </Link>
+        <span style={{ color: C.border }}>·</span>
+        <Link to="/settings" className="text-xs font-semibold" style={{ color: C.muted, textDecoration: 'none' }}>
+          Settings
+        </Link>
+      </nav>
+      <p className="text-[10px] mt-2" style={{ color: C.border }}>
+        © {new Date().getFullYear()} Potty Panda — Free Potty Training Tracker
+      </p>
+    </footer>
   );
 }
